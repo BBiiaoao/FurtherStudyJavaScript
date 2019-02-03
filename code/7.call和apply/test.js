@@ -49,8 +49,7 @@
     }
     bar.call(foo,'Tome',12);//Tome,12,1
 })();
-//传入的函数并不确定，所以，应该如此模拟:
-//第二版
+//传入的函数并不确定，所以，call()方法模拟第二版
 (function () {
     Function.prototype.call2=function (context) {
         //context即foo
@@ -92,7 +91,7 @@
     }
     console.log(bar.call(obj, 'Tim', 18));//{age:18,name:"Time",value:1}
 })();
-//为了实现传入null转为window,还有可返回值，第三版模拟实现:
+//为了实现传入null转为window,还有可返回值，call()第三版模拟实现:
 (function () {
     Function.prototype.call2=function (contetxt) {
         var context=context||window;
@@ -106,5 +105,39 @@
         delete context.fn;
         return result;
     }
+})();
+//同理:apply()方法模拟实现:
+(function () {
+    Function.prototype.apply1=function (context,arr) {
+        var context=Object(context)||window;
+        context.fn=this;
+        var result;
+        if(!arr){
+            result=context.fn()
+        }
+        else{
+            var args=[];
+            for(var i=0,len=arr.length;i<len;i++){
+                args.push('arr['+i+']');
+            }
+            result=eval('context.fn('+args+')');
+        }
+        delete context.fn;
+        return result
+    };
+    var obj={
+        value:1
+    };
+    function bar(name,age) {
+        return{
+            value:this.value,
+            name,
+            age
+        }
+    }
+    console.log(bar.apply1(obj, ["Marry",22]));//{value: 1, name: "Marry", age: 22}
+    var arr1=new Array("1","2","3");
+    var arr2=new Array("4","5","6")
+    console.log(Array.prototype.push.apply(arr1, arr2));//6
 })();
 
