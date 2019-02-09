@@ -118,3 +118,22 @@
     var obj=new bindFoo(12);//undefined,Mike,12
     var bindFoo1=bar.bind2(foo,"Aym",12)();
 })();
+//还有一点小问题:1.调用bind的不是函数需要报错 2.线上用需要做兼容
+//最终版:
+(function () {
+    Function.prototype.bind2=function (context) {
+        if(typeof this !=="function"){
+            throw new Error("Function.prototype.bind-what is trying to be bound is not")
+        }
+        var self=this;
+        var args=Array.prototype.slice.call(arguments,1);
+        var fNOP=function () {};
+        var fBound=function () {
+            var bindArgs=Array.prototype.slice.call(arguments);
+            return self.apply(this instanceof fNOP ? this:context,args.concat(bindArgs));
+        };
+        fNOP.prototype=this.prototype;
+        fBound.prototype=new fNOP();
+        return fBound;
+    }
+})();

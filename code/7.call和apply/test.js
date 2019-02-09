@@ -17,7 +17,7 @@
     };
     foo.bar();//1
 })();
-//模拟call()实现的步骤:
+//第一版模拟call()实现的步骤:
 //1.将函数设为对象的函数
 //2.执行该函数
 //3.删除该函数
@@ -28,7 +28,7 @@
         context.fn=this;
         context.fn();
         delete context.fn;
-    }
+    };
     var foo={
         value:1
     };
