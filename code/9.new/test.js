@@ -25,7 +25,6 @@
             var Constructor = [].shift.call(arguments);//Constructor为参数第一个，即我们要传入的构造函数，此外shift会修改原数组，所以arguments会被去除第一个参数
             obj.__proto__ = Constructor.prototype;//将obj的原型指向构造函数，这样obj就可以访问到构造函数中的属性
             Constructor.apply(obj, arguments);
-            constructor.call
             return obj;
         };
         function Otaku (name, age) {
