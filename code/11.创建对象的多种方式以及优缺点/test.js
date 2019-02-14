@@ -77,15 +77,60 @@
         //优点:该共享的共享，该私有的私有，使用最广泛的方式
         //缺点:有的要求就是希望全部写在一起，即更好地封装性，例如工厂模式
 
-        //5.动态原型模式
-        function Person5(name) {
+        //4.1.动态原型模式
+        function Person4(name) {
             this.name=name;
             if(typeof this.getName()!="function"){
-                Person5.prototype.getName=function () {
+                Person4.prototype.getName=function () {
                     console.log(this.name);
                 }
             }
         }
-        var person5=new Person5()
+        var person4=new Person4();
+        console.log(person4.proto);
+
+        //5.1.寄生构造函数模式:应该读作寄生-构造函数模式，打着构造函数的幌子挂羊头卖狗肉
+        function Person5(name) {
+            var o=new Object();
+            o.name=name;
+            o.getName=function () {
+                console.log(this.name);
+            };
+            return o;
+        }
+        var person5=new Person5("ken");
+        console.log(person5 instanceof Person5);//false
+        console.log(person5 instanceof Object);//true
+        //可以在特殊情况下使用，比如想创建一个具有额外方法的特殊数组，又不想直接修改Array构造函数
+        function SpecialArray() {
+            var values=new Array();
+            for (var i=0,len=arguments.length;i<len;i++){
+                values.push(arguments[i])
+            };
+            values.toPipedString=function () {
+                return this.join("|");
+            };
+            return values;
+        }
+        var colors=new SpecialArray('red','blue','green');
+        var colors2=SpecialArray('red2','blue2','green2');
+        console.log(colors);//["red", "blue", "green", toPipedString: ƒ]
+        console.log(colors.toPipedString());//red|blue|green
+        console.log(colors2);//["red2", "blue2", "green2", toPipedString: ƒ]
+        console.log(colors2.toPipedString());//red2|blue2|green2
+
+        //5.2稳妥构造函数模式:没有公共属性，而且其方法也不引用this的对象
+        function Person5(name) {
+            var o=new Object();
+            o.sayName=function () {
+                console.log(name);
+            }
+            return o;
+        }
+        var person5=Person5("Kim");
+        person5.sayName();//Kim
+        person5.name="Keven";
+        person5.sayName();//Kim
+        console.log(person5.name);//Keven
     }
 )();
