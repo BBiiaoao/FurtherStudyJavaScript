@@ -1,4 +1,5 @@
 (function () {
+    console.log(this);
     console.log(this instanceof Object);
     console.log(window);
     var test=function () {
