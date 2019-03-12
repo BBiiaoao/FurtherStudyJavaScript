@@ -66,6 +66,7 @@ function Promise(fn) {
 //通过setTimeout机制，将resolve中执行回调的逻辑放置到JS任务队列末尾,以保证在resolve执行时，then方法的回调函数已经注册完成
 
 //3.加入状态,即pending,fulfilled,rejected
+//解决在Promise异步操作成功这之后调用的then注册的回调就再也不会执行了的问题
 //  pending可以转换为fulfilled或rejected并且只能转换一次
 function Promise(fn) {
     var state="pending",
@@ -93,6 +94,29 @@ function Promise(fn) {
 //上诉代码的思路是这样:
 //resolve执行时，会将状态设置为fulfilled，在此之后调用then添加的新回调，都会立即执行
 
+//如果then中又注册了一个Promise:
+(function () {
+    function getUserId() {
+        return new Promise(function (resolve) {
+            //异步请求
+            http.get(url, function (results) {
+                resolve(results.id)
+            })
+        })
+    };
+    function getUserJobById(id) {
+        return new Promise(function (resolve) {
+            http.get(baseUrl+id,function (job) {
+                resolve(job);
+            })
+        })
+    }
+    getUserId()
+        .then(getUserJobById)
+        .then(function (job) {
+            //对job的处理
+        })
+})();
 //4.链式Promise
 //  链式Promise是指在当前的promise达到fulfilled状态后，即开始进行下一个promise(后邻promise)
 function Promsie(fn) {
@@ -122,7 +146,18 @@ function Promsie(fn) {
     }
     function resolve(newValue) {
         if(newValue && (typeof newValue==="object" || typeof newValue==="function")){
-
-        }
+            var then=newValue.then;
+            if(typeof then==='function'){
+                then.call(newValue,resolve);
+                return;
+            }
+        };
+        state='fulfilled';
+        value=newValue;
+        setTimeout(function () {
+            callbacks.forEach(function (callback) {
+                handle(callback)
+            })
+        },0)
     }
 }
